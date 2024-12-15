@@ -119,7 +119,6 @@
             <button id="place-left">←</button>
             <button id="place-up">↑</button>
             <button id="place-down">↓</button>
-            <button id="num-one">1</button>
             <button id="num-two">2</button>
             <button id="num-three">3</button>
             <button id="num-four">4</button>
@@ -414,7 +413,6 @@ document.getElementById('place-up').addEventListener('click', () => handleKey({ 
 document.getElementById('place-down').addEventListener('click', () => handleKey({ key: 's' }));
 
 // 数字ボタン
-document.getElementById('num-one').addEventListener('click', () => handleKey({ key: '1' }));
 document.getElementById('num-two').addEventListener('click', () => handleKey({ key: '2' }));
 document.getElementById('num-three').addEventListener('click', () => handleKey({ key: '3' }));
 document.getElementById('num-four').addEventListener('click', () => handleKey({ key: '4' }));
@@ -451,12 +449,14 @@ function copyTextToClipboard(text) {
     try {
         const successful = document.execCommand('copy');
         if (successful) {
+            //updateMessageArea(url, 'lightgreen', 'darkgreen')
             updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
         } else {
-            updateMessageArea('Failed to copy URL.', 'lightcoral', 'darkred');
+            updateMessageArea('Failed to copy URL1.', 'lightcoral', 'darkred');
         }
     } catch (err) {
-        updateMessageArea('Failed to copy URL.', 'lightcoral', 'darkred');
+        //updateMessageArea(url, 'lightgreen', 'darkgreen')
+        updateMessageArea('Failed to copy URL2.', 'lightcoral', 'darkred');
     }
 
     document.body.removeChild(textArea); // コピー後に削除
