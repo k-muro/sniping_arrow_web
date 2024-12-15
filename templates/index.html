@@ -331,6 +331,13 @@
 
 
         document.addEventListener('keydown', (event) => {
+    // 入力要素にフォーカスがない場合、矢印キーのスクロールを無効化
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        if (document.activeElement.tagName !== 'INPUT') {
+            event.preventDefault();
+        }
+    }
+
             // フォーカスがinput要素にある場合、キー操作を無効化
             if (document.activeElement.tagName === 'INPUT') return;
 
@@ -423,52 +430,51 @@
         });
 
         }
-
         async function solvePuzzle() {
+    try {
+        // 初期メッセージを更新
+        updateMessageArea("Now Solving...", 'white', 'black');
+        resetBoard("solution1-board");
+        resetBoard("solution2-board");
 
-            updateMessageArea("Now Solving...", bgColor = 'white', textColor = 'black')
-            resetBoard("solution1-board")
-            resetBoard("solution2-board")
-            blackCells = getBlackCells("edit-board")
-            const boardData = getBoardData('edit-board'); // 現在の盤面状態を取得
-            // try {
-            const response = await fetch('/api/solve', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ board: boardData })
-            });
-            if (!response.ok) {
-                throw new Error('Failed to solve puzzle');
-            }
-            const solution = await response.json();
+        // 現在の盤面データを取得
+        const boardData = getBoardData('edit-board');
+        const blackCells = getBlackCells("edit-board");
 
-            const { is_hukusuukai, ans_board1, ans_board2 } = solution;
+        // APIリクエストを送信
+        const response = await fetch('/api/solve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ board: boardData })
+        });
 
-            if (ans_board1.length == 0) {
-
-                // self.update_message("解なし(0)", "black","red")
-                updateMessageArea("解なし(0)", bgColor = 'red', textColor = 'black')
-            }
-            else {
-
-                displaySolution("solution1-board", ans_board1, blackCells)
-                if (is_hukusuukai) {
-
-                    //self.update_message("複数解(2+)", "black","lightyellow")
-                    //self.display_solution( "solution2",solution2)
-
-                    updateMessageArea("複数解(2+)", bgColor = 'lightyellow', textColor = 'black')
-                    displaySolution("solution2-board", ans_board2, blackCells)
-                    //self.show_diff()
-                    showDiff()
-                }
-                else {
-                    updateMessageArea("唯一解(1)", bgColor = 'lightgreen', textColor = 'black')
-                }
-            }
-
-
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server Error: ${errorText}`);
         }
+
+        const solution = await response.json();
+        const { is_hukusuukai, ans_board1, ans_board2 } = solution;
+
+        if (ans_board1.length === 0) {
+            updateMessageArea("解なし(0)", 'red', 'black');
+        } else {
+            displaySolution("solution1-board", ans_board1, blackCells);
+            if (is_hukusuukai) {
+                updateMessageArea("複数解(2+)", 'lightyellow', 'black');
+                displaySolution("solution2-board", ans_board2, blackCells);
+                showDiff();
+            } else {
+                updateMessageArea("唯一解(1)", 'lightgreen', 'black');
+            }
+        }
+    } catch (error) {
+        // エラーメッセージを画面に表示
+        console.error("Error solving puzzle:", error);
+        updateMessageArea(`エラーが発生しました: ${error.message}`, 'red', 'white');
+    }
+}
+
         function getBlackCells(boardId) {
             const board = document.getElementById(boardId);
             const cells = board.querySelectorAll('.cell');

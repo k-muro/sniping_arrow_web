@@ -2,6 +2,18 @@ from flask import Flask, render_template, request, jsonify
 from board_logic.board import SnipingArrowBoard  # ロジック部分
 
 app = Flask(__name__)
+from flask import jsonify
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # 例外発生時にログを記録
+    app.logger.error(f"Error occurred: {str(e)}")
+    
+    # クライアントにエラーメッセージをJSONで返す
+    return jsonify({
+        "error": "Server encountered an error",
+        "details": str(e)
+    }), 500
 
 @app.route("/", methods=["GET", "POST"])
 def index():
