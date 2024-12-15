@@ -38,6 +38,15 @@
             margin-bottom: 20px;
         }
 
+        .panel {
+    border: 1px solid #ccc;  /* グレーの細い枠線 */
+    padding: 15px;  /* 内側の余白 */
+    border-radius: 4px;  /* 角を少し丸くする（オプション） */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .panels {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -73,7 +82,7 @@
 
         .message {
             padding: 10px;
-            margin: 10px 0;
+            /* margin: 10px 0; */
             border-radius: 5px;
             text-align: center;
         }
@@ -121,7 +130,7 @@
             <button id="place-up">↑</button>
             <button id="place-down">↓</button>
         </div>
-            <div class="button-panel">
+        <div class="button-panel">
             <button id="num-two">2</button>
             <button id="num-three">3</button>
             <button id="num-four">4</button>
@@ -341,12 +350,12 @@
 
 
         document.addEventListener('keydown', (event) => {
-     // スペースキーや矢印キーのスクロール動作を無効化
-     if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        if (document.activeElement.tagName !== 'INPUT') {
-            event.preventDefault(); // デフォルトのスクロール動作を無効化
-        }
-    }
+            // スペースキーや矢印キーのスクロール動作を無効化
+            if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                if (document.activeElement.tagName !== 'INPUT') {
+                    event.preventDefault(); // デフォルトのスクロール動作を無効化
+                }
+            }
 
             // フォーカスがinput要素にある場合、キー操作を無効化
             if (document.activeElement.tagName === 'INPUT') return;
@@ -409,23 +418,23 @@
         });
 
         document.getElementById('place-black').addEventListener('click', () => handleKey({ key: 'z' }));
-document.getElementById('place-right').addEventListener('click', () => handleKey({ key: 'd' }));
-document.getElementById('place-left').addEventListener('click', () => handleKey({ key: 'a' }));
-document.getElementById('place-up').addEventListener('click', () => handleKey({ key: 'w' }));
-document.getElementById('place-down').addEventListener('click', () => handleKey({ key: 's' }));
+        document.getElementById('place-right').addEventListener('click', () => handleKey({ key: 'd' }));
+        document.getElementById('place-left').addEventListener('click', () => handleKey({ key: 'a' }));
+        document.getElementById('place-up').addEventListener('click', () => handleKey({ key: 'w' }));
+        document.getElementById('place-down').addEventListener('click', () => handleKey({ key: 's' }));
 
-// 数字ボタン
-document.getElementById('num-two').addEventListener('click', () => handleKey({ key: '2' }));
-document.getElementById('num-three').addEventListener('click', () => handleKey({ key: '3' }));
-document.getElementById('num-four').addEventListener('click', () => handleKey({ key: '4' }));
-document.getElementById('num-five').addEventListener('click', () => handleKey({ key: '5' }));
-document.getElementById('num-six').addEventListener('click', () => handleKey({ key: '6' }));
-document.getElementById('num-seven').addEventListener('click', () => handleKey({ key: '7' }));
-document.getElementById('num-eight').addEventListener('click', () => handleKey({ key: '8' }));
-document.getElementById('num-nine').addEventListener('click', () => handleKey({ key: '9' }));
+        // 数字ボタン
+        document.getElementById('num-two').addEventListener('click', () => handleKey({ key: '2' }));
+        document.getElementById('num-three').addEventListener('click', () => handleKey({ key: '3' }));
+        document.getElementById('num-four').addEventListener('click', () => handleKey({ key: '4' }));
+        document.getElementById('num-five').addEventListener('click', () => handleKey({ key: '5' }));
+        document.getElementById('num-six').addEventListener('click', () => handleKey({ key: '6' }));
+        document.getElementById('num-seven').addEventListener('click', () => handleKey({ key: '7' }));
+        document.getElementById('num-eight').addEventListener('click', () => handleKey({ key: '8' }));
+        document.getElementById('num-nine').addEventListener('click', () => handleKey({ key: '9' }));
 
-// 削除ボタン
-document.getElementById('delete-cell').addEventListener('click', () => handleKey({ key: ' ' }));
+        // 削除ボタン
+        document.getElementById('delete-cell').addEventListener('click', () => handleKey({ key: ' ' }));
 
 
 
@@ -434,40 +443,40 @@ document.getElementById('delete-cell').addEventListener('click', () => handleKey
         createBoard('solution1-board', 5, 7);
         createBoard('solution2-board', 5, 7);
 
-        
-// 環境に依存しないクリップボードコピー処理
-function copyTextToClipboard(text) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
 
-    // スクロール位置を固定してDOMに一時的に追加
-    textArea.style.position = "fixed";
-    textArea.style.left = "-9999px";
+        // 環境に依存しないクリップボードコピー処理
+        function copyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
 
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
+            // スクロール位置を固定してDOMに一時的に追加
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
 
-    try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-            //updateMessageArea(url, 'lightgreen', 'darkgreen')
-             updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
-            //updateMessageArea(text, 'white', 'blue',url=text);
-        
-        
-        } else {
-            updateMessageArea(text, 'white', 'blue',url=text);
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    //updateMessageArea(url, 'lightgreen', 'darkgreen')
+                    updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
+                    //updateMessageArea(text, 'white', 'blue',url=text);
+
+
+                } else {
+                    updateMessageArea(text, 'white', 'blue', url = text);
+                }
+            } catch (err) {
+                //updateMessageArea(url, 'lightgreen', 'darkgreen')
+                updateMessageArea('Failed to copy URL2.', 'lightcoral', 'darkred');
+            }
+
+            document.body.removeChild(textArea); // コピー後に削除
         }
-    } catch (err) {
-        //updateMessageArea(url, 'lightgreen', 'darkgreen')
-        updateMessageArea('Failed to copy URL2.', 'lightcoral', 'darkred');
-    }
-
-    document.body.removeChild(textArea); // コピー後に削除
-}
         async function exportURL() {
-            
+
             const boardData = getBoardData('edit-board'); // 現在の盤面状態を取得
             // try {
             const response = await fetch('/api/export_url', {
@@ -481,53 +490,53 @@ function copyTextToClipboard(text) {
             const url_data = await response.json();
             const { url } = url_data;
 
-    copyTextToClipboard(url); 
+            copyTextToClipboard(url);
 
         }
         async function solvePuzzle() {
-    try {
-        // 初期メッセージを更新
-        updateMessageArea("Now Solving...", 'white', 'black');
-        resetBoard("solution1-board");
-        resetBoard("solution2-board");
+            try {
+                // 初期メッセージを更新
+                updateMessageArea("Now Solving...", 'white', 'black');
+                resetBoard("solution1-board");
+                resetBoard("solution2-board");
 
-        // 現在の盤面データを取得
-        const boardData = getBoardData('edit-board');
-        const blackCells = getBlackCells("edit-board");
+                // 現在の盤面データを取得
+                const boardData = getBoardData('edit-board');
+                const blackCells = getBlackCells("edit-board");
 
-        // APIリクエストを送信
-        const response = await fetch('/api/solve', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ board: boardData })
-        });
+                // APIリクエストを送信
+                const response = await fetch('/api/solve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ board: boardData })
+                });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Server Error: ${errorText}`);
-        }
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server Error: ${errorText}`);
+                }
 
-        const solution = await response.json();
-        const { is_hukusuukai, ans_board1, ans_board2 } = solution;
+                const solution = await response.json();
+                const { is_hukusuukai, ans_board1, ans_board2 } = solution;
 
-        if (ans_board1.length === 0) {
-            updateMessageArea("解なし(0)", 'red', 'black');
-        } else {
-            displaySolution("solution1-board", ans_board1, blackCells);
-            if (is_hukusuukai) {
-                updateMessageArea("複数解(2+)", 'lightyellow', 'black');
-                displaySolution("solution2-board", ans_board2, blackCells);
-                showDiff();
-            } else {
-                updateMessageArea("唯一解(1)", 'lightgreen', 'black');
+                if (ans_board1.length === 0) {
+                    updateMessageArea("解なし(0)", 'red', 'black');
+                } else {
+                    displaySolution("solution1-board", ans_board1, blackCells);
+                    if (is_hukusuukai) {
+                        updateMessageArea("複数解(2+)", 'lightyellow', 'black');
+                        displaySolution("solution2-board", ans_board2, blackCells);
+                        showDiff();
+                    } else {
+                        updateMessageArea("唯一解(1)", 'lightgreen', 'black');
+                    }
+                }
+            } catch (error) {
+                // エラーメッセージを画面に表示
+                console.error("Error solving puzzle:", error);
+                updateMessageArea(`タイムアウトエラー:(だいたいの場合問題サイズが大きすぎるのが原因なので、サイズを小さくしたりヒントを増やしたりしてください)`, 'red', 'white');
             }
         }
-    } catch (error) {
-        // エラーメッセージを画面に表示
-        console.error("Error solving puzzle:", error);
-        updateMessageArea(`エラーが発生しました:(だいたいの場合問題サイズが大きすぎるのが原因なので、サイズを小さくしたりヒントを増やしたりしてください) ${error.message}`, 'red', 'white');
-    }
-}
 
         function getBlackCells(boardId) {
             const board = document.getElementById(boardId);
@@ -572,93 +581,93 @@ function copyTextToClipboard(text) {
             return data;
         }
         function displaySolution(boardId, solution, blackCells = []) {
-    const board = document.getElementById(boardId);
-    const cells = board.querySelectorAll('.cell');
-    
-    // 既存のSVGを削除
-    const oldSvg = board.querySelector('.arrow-layer');
-    if (oldSvg) oldSvg.remove();
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
 
-    // SVGレイヤーを作成
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.classList.add('arrow-layer');
-    svg.style.position = 'absolute';
-    svg.style.top = '0';
-    svg.style.left = '0';
-    svg.style.width = '100%';
-    svg.style.height = '100%';
-    svg.style.pointerEvents = 'none'; // クリックイベントを下のセルに通す
-    board.style.position = 'relative'; // 必要に応じて追加
-    
-    // セルサイズを取得（最初のセルから）
-    const firstCell = cells[0];
-    const cellSize = firstCell.offsetWidth;
+            // 既存のSVGを削除
+            const oldSvg = board.querySelector('.arrow-layer');
+            if (oldSvg) oldSvg.remove();
 
-    cells.forEach(cell => {
-        const row = parseInt(cell.dataset.row);
-        const col = parseInt(cell.dataset.col);
-        if (!blackCells.some(([r, c]) => r === row && c === col)) {
-            cell.textContent = '';
-            cell.style.backgroundColor = '';
+            // SVGレイヤーを作成
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.classList.add('arrow-layer');
+            svg.style.position = 'absolute';
+            svg.style.top = '0';
+            svg.style.left = '0';
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.style.pointerEvents = 'none'; // クリックイベントを下のセルに通す
+            board.style.position = 'relative'; // 必要に応じて追加
+
+            // セルサイズを取得（最初のセルから）
+            const firstCell = cells[0];
+            const cellSize = firstCell.offsetWidth;
+
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                if (!blackCells.some(([r, c]) => r === row && c === col)) {
+                    cell.textContent = '';
+                    cell.style.backgroundColor = '';
+                }
+            });
+
+            solution.forEach(({ startRow, startCol, direction, length, path, tip }) => {
+                // 線を描画
+                if (tip) {
+                    const [tipRow, tipCol] = tip;
+                    const startX = (startCol + 0.5) * cellSize;
+                    const startY = (startRow + 0.5) * cellSize;
+                    const endX = (tipCol + 0.5) * cellSize;
+                    const endY = (tipRow + 0.5) * cellSize;
+
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", startX);
+                    line.setAttribute("y1", startY);
+                    line.setAttribute("x2", endX);
+                    line.setAttribute("y2", endY);
+                    line.setAttribute("stroke", "gray");
+                    line.setAttribute("stroke-width", "1");
+                    svg.appendChild(line);
+                }
+
+                // 以下、既存のセル内容の設定
+                path.forEach(([r, c]) => {
+                    const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+                    if (cell) {
+                        cell.textContent = length.toString();
+                        cell.style.backgroundColor = '';
+                    }
+                });
+
+                if (tip) {
+                    const [tipRow, tipCol] = tip;
+                    const cell = board.querySelector(`.cell[data-row='${tipRow}'][data-col='${tipCol}']`);
+                    if (cell) {
+                        const directionMap = { up: '↑', down: '↓', left: '←', right: '→' };
+                        cell.textContent = directionMap[direction];
+                        cell.style.backgroundColor = 'palegreen';
+                    }
+                }
+
+                const startCell = board.querySelector(`.cell[data-row='${startRow}'][data-col='${startCol}']`);
+                if (startCell) {
+                    startCell.style.backgroundColor = 'lightyellow';
+                }
+            });
+
+            // SVGを盤面に追加
+            board.appendChild(svg);
+
+            blackCells.forEach(([r, c]) => {
+                const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+                if (cell) {
+                    cell.textContent = '■';
+                    cell.style.backgroundColor = 'black';
+                    cell.style.color = 'white';
+                }
+            });
         }
-    });
-
-    solution.forEach(({ startRow, startCol, direction, length, path, tip }) => {
-        // 線を描画
-        if (tip) {
-            const [tipRow, tipCol] = tip;
-            const startX = (startCol + 0.5) * cellSize;
-            const startY = (startRow + 0.5) * cellSize;
-            const endX = (tipCol + 0.5) * cellSize;
-            const endY = (tipRow + 0.5) * cellSize;
-
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", startX);
-            line.setAttribute("y1", startY);
-            line.setAttribute("x2", endX);
-            line.setAttribute("y2", endY);
-            line.setAttribute("stroke", "gray");
-            line.setAttribute("stroke-width", "1");
-            svg.appendChild(line);
-        }
-
-        // 以下、既存のセル内容の設定
-        path.forEach(([r, c]) => {
-            const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
-            if (cell) {
-                cell.textContent = length.toString();
-                cell.style.backgroundColor = '';
-            }
-        });
-
-        if (tip) {
-            const [tipRow, tipCol] = tip;
-            const cell = board.querySelector(`.cell[data-row='${tipRow}'][data-col='${tipCol}']`);
-            if (cell) {
-                const directionMap = { up: '↑', down: '↓', left: '←', right: '→' };
-                cell.textContent = directionMap[direction];
-                cell.style.backgroundColor = 'palegreen';
-            }
-        }
-
-        const startCell = board.querySelector(`.cell[data-row='${startRow}'][data-col='${startCol}']`);
-        if (startCell) {
-            startCell.style.backgroundColor = 'lightyellow';
-        }
-    });
-
-    // SVGを盤面に追加
-    board.appendChild(svg);
-
-    blackCells.forEach(([r, c]) => {
-        const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
-        if (cell) {
-            cell.textContent = '■';
-            cell.style.backgroundColor = 'black';
-            cell.style.color = 'white';
-        }
-    });
-}
 
         function showDiff() {
             const board1 = document.getElementById('solution1-board');
@@ -680,14 +689,14 @@ function copyTextToClipboard(text) {
             }
         }
 
-        function updateMessageArea(message, bgColor = 'white', textColor = 'black',url=null) {
-            
+        function updateMessageArea(message, bgColor = 'white', textColor = 'black', url = null) {
+
             const messageArea = document.getElementById('message-area');
             if (url) {
-            messageArea.innerHTML = `<a href="${url}" target="_blank">${message}</a>`;
-        } else {
-            messageArea.textContent = message;
-        }
+                messageArea.innerHTML = `<a href="${url}" target="_blank">${message}</a>`;
+            } else {
+                messageArea.textContent = message;
+            }
             messageArea.style.backgroundColor = bgColor;
             messageArea.style.color = textColor;
         }
