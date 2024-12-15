@@ -407,6 +407,32 @@
         createBoard('solution2-board', 5, 7);
 
         
+// 環境に依存しないクリップボードコピー処理
+function copyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // スクロール位置を固定してDOMに一時的に追加
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
+        } else {
+            updateMessageArea('Failed to copy URL.', 'lightcoral', 'darkred');
+        }
+    } catch (err) {
+        updateMessageArea('Failed to copy URL.', 'lightcoral', 'darkred');
+    }
+
+    document.body.removeChild(textArea); // コピー後に削除
+}
         async function exportURL() {
             
             const boardData = getBoardData('edit-board'); // 現在の盤面状態を取得
@@ -421,13 +447,8 @@
             }
             const url_data = await response.json();
             const { url } = url_data;
-            navigator.clipboard.writeText(url) // URLをクリップボードにコピー
-        .then(() => {
-            updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
-        })
-        .catch(() => {
-            updateMessageArea('Failed to copy URL.', 'lightcoral', 'darkred');
-        });
+
+    copyTextToClipboard(url); 
 
         }
         async function solvePuzzle() {
