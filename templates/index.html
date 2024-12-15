@@ -119,6 +119,15 @@
             <button id="place-left">←</button>
             <button id="place-up">↑</button>
             <button id="place-down">↓</button>
+            <button id="num-one">1</button>
+            <button id="num-two">2</button>
+            <button id="num-three">3</button>
+            <button id="num-four">4</button>
+            <button id="num-five">5</button>
+            <button id="num-six">6</button>
+            <button id="num-seven">7</button>
+            <button id="num-eight">8</button>
+            <button id="num-nine">9</button>
             <button id="delete-cell">del</button>
         </div>
 
@@ -398,6 +407,25 @@
             copyBoard('solution2-board', 'draft-board');
         });
 
+        document.getElementById('place-black').addEventListener('click', () => handleKey({ key: 'z' }));
+document.getElementById('place-right').addEventListener('click', () => handleKey({ key: 'd' }));
+document.getElementById('place-left').addEventListener('click', () => handleKey({ key: 'a' }));
+document.getElementById('place-up').addEventListener('click', () => handleKey({ key: 'w' }));
+document.getElementById('place-down').addEventListener('click', () => handleKey({ key: 's' }));
+
+// 数字ボタン
+document.getElementById('num-one').addEventListener('click', () => handleKey({ key: '1' }));
+document.getElementById('num-two').addEventListener('click', () => handleKey({ key: '2' }));
+document.getElementById('num-three').addEventListener('click', () => handleKey({ key: '3' }));
+document.getElementById('num-four').addEventListener('click', () => handleKey({ key: '4' }));
+document.getElementById('num-five').addEventListener('click', () => handleKey({ key: '5' }));
+document.getElementById('num-six').addEventListener('click', () => handleKey({ key: '6' }));
+document.getElementById('num-seven').addEventListener('click', () => handleKey({ key: '7' }));
+document.getElementById('num-eight').addEventListener('click', () => handleKey({ key: '8' }));
+document.getElementById('num-nine').addEventListener('click', () => handleKey({ key: '9' }));
+
+// 削除ボタン
+document.getElementById('delete-cell').addEventListener('click', () => handleKey({ key: ' ' }));
 
 
 
