@@ -331,10 +331,10 @@
 
 
         document.addEventListener('keydown', (event) => {
-    // 入力要素にフォーカスがない場合、矢印キーのスクロールを無効化
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+     // スペースキーや矢印キーのスクロール動作を無効化
+     if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         if (document.activeElement.tagName !== 'INPUT') {
-            event.preventDefault();
+            event.preventDefault(); // デフォルトのスクロール動作を無効化
         }
     }
 
@@ -471,7 +471,7 @@
     } catch (error) {
         // エラーメッセージを画面に表示
         console.error("Error solving puzzle:", error);
-        updateMessageArea(`エラーが発生しました: ${error.message}`, 'red', 'white');
+        updateMessageArea(`エラーが発生しました:(だいたいの場合問題サイズが大きすぎるのが原因なので、サイズを小さくしたりヒントを増やしたりしてください) ${error.message}`, 'red', 'white');
     }
 }
 
