@@ -450,9 +450,12 @@ function copyTextToClipboard(text) {
         const successful = document.execCommand('copy');
         if (successful) {
             //updateMessageArea(url, 'lightgreen', 'darkgreen')
-            updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
+             updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
+            //updateMessageArea(text, 'white', 'blue',url=text);
+        
+        
         } else {
-            updateMessageArea('Failed to copy URL1.', 'lightcoral', 'darkred');
+            updateMessageArea(text, 'blue', 'white',url=text);
         }
     } catch (err) {
         //updateMessageArea(url, 'lightgreen', 'darkgreen')
@@ -643,9 +646,14 @@ function copyTextToClipboard(text) {
             }
         }
 
-        function updateMessageArea(message, bgColor = 'white', textColor = 'black') {
+        function updateMessageArea(message, bgColor = 'white', textColor = 'black',url=null) {
+            
             const messageArea = document.getElementById('message-area');
+            if (url) {
+            messageArea.innerHTML = `<a href="${url}" target="_blank">${message}</a>`;
+        } else {
             messageArea.textContent = message;
+        }
             messageArea.style.backgroundColor = bgColor;
             messageArea.style.color = textColor;
         }
