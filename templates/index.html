@@ -572,61 +572,93 @@ function copyTextToClipboard(text) {
             return data;
         }
         function displaySolution(boardId, solution, blackCells = []) {
-            // 1. 盤面をリセット（黒マスはそのまま維持）
-            console.log(solution)
-            const board = document.getElementById(boardId);
-            const cells = board.querySelectorAll('.cell');
-            cells.forEach(cell => {
-                const row = parseInt(cell.dataset.row);
-                const col = parseInt(cell.dataset.col);
+    const board = document.getElementById(boardId);
+    const cells = board.querySelectorAll('.cell');
+    
+    // 既存のSVGを削除
+    const oldSvg = board.querySelector('.arrow-layer');
+    if (oldSvg) oldSvg.remove();
 
-                // 黒マスでない場合にリセット
-                if (!blackCells.some(([r, c]) => r === row && c === col)) {
-                    cell.textContent = '';
-                    cell.style.backgroundColor = 'white';
-                }
-            });
+    // SVGレイヤーを作成
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.classList.add('arrow-layer');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+    svg.style.pointerEvents = 'none'; // クリックイベントを下のセルに通す
+    board.style.position = 'relative'; // 必要に応じて追加
+    
+    // セルサイズを取得（最初のセルから）
+    const firstCell = cells[0];
+    const cellSize = firstCell.offsetWidth;
 
-            // 2. 矢印を描画
-            solution.forEach(({ startRow, startCol, direction, length, path, tip }) => {
-                // 経路部分に長さを表示
-                path.forEach(([r, c]) => {
-                    const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
-                    if (cell) {
-                        cell.textContent = length.toString();
-                        cell.style.backgroundColor = 'white';
-                    }
-                });
+    cells.forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        if (!blackCells.some(([r, c]) => r === row && c === col)) {
+            cell.textContent = '';
+            cell.style.backgroundColor = '';
+        }
+    });
 
-                // 矢尻部分に方向マーカーを表示
-                if (tip) {
-                    const [tipRow, tipCol] = tip;
-                    const cell = board.querySelector(`.cell[data-row='${tipRow}'][data-col='${tipCol}']`);
-                    if (cell) {
-                        const directionMap = { up: '↑', down: '↓', left: '←', right: '→' };
-                        cell.textContent = directionMap[direction];
-                        cell.style.backgroundColor = 'palegreen';
-                    }
-                }
+    solution.forEach(({ startRow, startCol, direction, length, path, tip }) => {
+        // 線を描画
+        if (tip) {
+            const [tipRow, tipCol] = tip;
+            const startX = (startCol + 0.5) * cellSize;
+            const startY = (startRow + 0.5) * cellSize;
+            const endX = (tipCol + 0.5) * cellSize;
+            const endY = (tipRow + 0.5) * cellSize;
 
-                // 始点をハイライト
-                const startCell = board.querySelector(`.cell[data-row='${startRow}'][data-col='${startCol}']`);
-                if (startCell) {
-                    startCell.style.backgroundColor = 'lightyellow';
-                }
-            });
-
-            // 3. 黒マスを再設定
-            blackCells.forEach(([r, c]) => {
-                const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
-                if (cell) {
-                    cell.textContent = '■';
-                    cell.style.backgroundColor = 'black';
-                    cell.style.color = 'white';
-                }
-            });
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", startX);
+            line.setAttribute("y1", startY);
+            line.setAttribute("x2", endX);
+            line.setAttribute("y2", endY);
+            line.setAttribute("stroke", "gray");
+            line.setAttribute("stroke-width", "1");
+            svg.appendChild(line);
         }
 
+        // 以下、既存のセル内容の設定
+        path.forEach(([r, c]) => {
+            const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+            if (cell) {
+                cell.textContent = length.toString();
+                cell.style.backgroundColor = '';
+            }
+        });
+
+        if (tip) {
+            const [tipRow, tipCol] = tip;
+            const cell = board.querySelector(`.cell[data-row='${tipRow}'][data-col='${tipCol}']`);
+            if (cell) {
+                const directionMap = { up: '↑', down: '↓', left: '←', right: '→' };
+                cell.textContent = directionMap[direction];
+                cell.style.backgroundColor = 'palegreen';
+            }
+        }
+
+        const startCell = board.querySelector(`.cell[data-row='${startRow}'][data-col='${startCol}']`);
+        if (startCell) {
+            startCell.style.backgroundColor = 'lightyellow';
+        }
+    });
+
+    // SVGを盤面に追加
+    board.appendChild(svg);
+
+    blackCells.forEach(([r, c]) => {
+        const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+        if (cell) {
+            cell.textContent = '■';
+            cell.style.backgroundColor = 'black';
+            cell.style.color = 'white';
+        }
+    });
+}
 
         function showDiff() {
             const board1 = document.getElementById('solution1-board');
