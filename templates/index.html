@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sniping Arrow Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .board {
+            display: grid;
+            gap: 2px;
+            background-color: #ddd;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            background-color: white;
+            border: 1px solid #ccc;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .selected {
+            background-color: orange;
+        }
+
+        .info {
+            color: gray;
+            font-size: 0.9em;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success {
+            background-color: lightgreen;
+            color: green;
+        }
+
+        .error {
+            background-color: lightcoral;
+            color: darkred;
+        }
+
+        .warning {
+            background-color: lightyellow;
+            color: goldenrod;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Sniping Arrow Solver</h1>
+    </header>
+    <div class="container">
+        <!-- Controls Section -->
+        <div class="controls">
+            <label for="height">Height:</label>
+            <input type="number" id="height" value="5" min="1" />
+            <label for="width">Width:</label>
+            <input type="number" id="width" value="7" min="1" />
+            <button id="resize">Resize</button>
+            <button id="solve">Solve</button>
+            <button id="export-url">Export URL</button>
+            <span id="info-icon" title="Creator Info">ℹ️</span>
+        </div>
+
+        <!-- Button Panel -->
+        <div class="button-panel">
+            <button id="place-black">■</button>
+            <button id="place-right">→</button>
+            <button id="place-left">←</button>
+            <button id="place-up">↑</button>
+            <button id="place-down">↓</button>
+            <button id="delete-cell">del</button>
+        </div>
+
+        <!-- Message Display Section -->
+        <div id="message-area" class="message"></div>
+
+        <!-- Panels Section -->
+        <div class="panels">
+            <div class="panel">
+                <h3>Edit Panel</h3>
+                <div id="edit-board" class="board"
+                    style="grid-template-rows: repeat(5, 40px); grid-template-columns: repeat(7, 40px);"></div>
+                <div>
+                    <button id="clear-edit">Clear</button>
+                    <button id="copy-to-draft">Copy to Draft</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Solution Panel 1</h3>
+                <div id="solution1-board" class="board"
+                    style="grid-template-rows: repeat(5, 40px); grid-template-columns: repeat(7, 40px);"></div>
+                <div>
+                    <button id="copy-to-draft-solution1">Copy to Draft</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Draft Panel</h3>
+                <div id="draft-board" class="board"
+                    style="grid-template-rows: repeat(5, 40px); grid-template-columns: repeat(7, 40px);"></div>
+                <div>
+                    <button id="clear-draft">Clear</button>
+                    <button id="copy-to-edit">Copy to Edit</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Solution Panel 2</h3>
+                <div id="solution2-board" class="board"
+                    style="grid-template-rows: repeat(5, 40px); grid-template-columns: repeat(7, 40px);"></div>
+                <div>
+                    <button id="copy-to-draft-solution2">Copy to Draft</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info">
+            <p><strong>Shortcuts:</strong></p>
+            <ul>
+                <li><strong>x/z</strong>: Place black cell</li>
+                <li><strong>a/w/s/d</strong>: Place arrow</li>
+                <li><strong>Space</strong>: Clear cell</li>
+                <li><strong>Alt+R</strong>: Resize board</li>
+                <li><strong>Alt+S</strong>: Solve puzzle</li>
+                <li><strong>Ctrl+Z</strong>: Undo</li>
+                <li><strong>Ctrl+Shift+Z</strong>: Redo</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let selectedCell = null;
+        const history = {
+            edit: {
+                undoStack: [],
+                redoStack: []
+            },
+            draft: {
+                undoStack: [],
+                redoStack: []
+            }
+        };
+
+        function getBoardState(boardId) {
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
+            const state = Array.from(cells).map(cell => ({
+                content: cell.textContent,
+                backgroundColor: cell.style.backgroundColor,
+                color: cell.style.color
+            }));
+            return state;
+        }
+        function setBoardState(boardId, state) {
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = state[index].content;
+                cell.style.backgroundColor = state[index].backgroundColor;
+                cell.style.color = state[index].color;
+            });
+        }
+        function recordAction(panel, boardId) {
+            const state = getBoardState(boardId);
+            history[panel].undoStack.push(state);
+            history[panel].redoStack = []; // 新しい操作が行われた場合、Redo履歴はクリア
+        }
+        function undo(panel, boardId) {
+            if (history[panel].undoStack.length === 0) return;
+            const currentState = getBoardState(boardId);
+            const previousState = history[panel].undoStack.pop();
+            history[panel].redoStack.push(currentState);
+            setBoardState(boardId, previousState);
+        }
+        function redo(panel, boardId) {
+            if (history[panel].redoStack.length === 0) return;
+            const currentState = getBoardState(boardId);
+            const nextState = history[panel].redoStack.pop();
+            history[panel].undoStack.push(currentState);
+            setBoardState(boardId, nextState);
+        }
+
+        function createBoard(boardId, rows, cols) {
+            const board = document.getElementById(boardId);
+            board.innerHTML = '';
+            board.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+            board.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener('click', () => selectCell(cell));
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function selectCell(cell) {
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+            selectedCell = cell;
+            selectedCell.classList.add('selected');
+        }
+
+        function moveSelection(key) {
+            if (!selectedCell) return;
+            const row = parseInt(selectedCell.dataset.row);
+            const col = parseInt(selectedCell.dataset.col);
+            const board = selectedCell.parentNode;
+
+            // グリッドの行数と列数を計算
+            const gridSize = {
+                rows: Math.max(...Array.from(board.children).map(cell => parseInt(cell.dataset.row))) + 1,
+                cols: Math.max(...Array.from(board.children).map(cell => parseInt(cell.dataset.col))) + 1
+            };
+
+            let newRow = row;
+            let newCol = col;
+
+            if (key === 'ArrowUp' && row > 0) newRow--;
+            if (key === 'ArrowDown' && row < gridSize.rows - 1) newRow++;
+            if (key === 'ArrowLeft' && col > 0) newCol--;
+            if (key === 'ArrowRight' && col < gridSize.cols - 1) newCol++;
+
+            const newSelectedCell = board.querySelector(`.cell[data-row='${newRow}'][data-col='${newCol}']`);
+            if (newSelectedCell) selectCell(newSelectedCell);
+        }
+        function handleKey(event) {
+            if (event.altKey || event.ctrlKey) return;
+
+            if (!selectedCell) return;
+
+            if (!selectedCell) return;
+
+            const panel = selectedCell.closest('#edit-board') ? 'edit' : 'draft';
+            const boardId = panel === 'edit' ? 'edit-board' : 'draft-board';
+
+            // 操作前の状態を記録
+            recordAction(panel, boardId);
+
+            console.log(event.key)
+            switch (event.key) {
+                case 'x':
+                case 'z':
+                    selectedCell.textContent = '■';
+                    break;
+                case 'a':
+                    selectedCell.textContent = '←';
+                    break;
+                case 'w':
+                    selectedCell.textContent = '↑';
+                    break;
+                case 's':
+                    selectedCell.textContent = '↓';
+                    break;
+                case 'd':
+                    selectedCell.textContent = '→';
+                    break;
+                case ' ': // Space key
+                    selectedCell.textContent = '';
+                    break;
+                default:
+                    if (event.key >= '0' && event.key <= '9') { // 数字キーのみに厳密に制限
+                        console.log(event.key);
+                        selectedCell.textContent += event.key;
+                        return;
+                    }
+                    if (event.key.startsWith('Arrow')) {
+                        moveSelection(event.key);
+                    }
+
+            }
+        }
+
+
+        document.addEventListener('keydown', (event) => {
+            // フォーカスがinput要素にある場合、キー操作を無効化
+            if (document.activeElement.tagName === 'INPUT') return;
+
+            if (event.ctrlKey && event.key.toLowerCase() === 'z') {
+                if (event.shiftKey) {
+                    redo('edit', 'edit-board');
+                } else {
+                    undo('edit', 'edit-board');
+                }
+            } else if (event.altKey && event.key.toLowerCase() === 'r') {
+                resizeBoards();
+            } else if (event.altKey && event.key.toLowerCase() === 's') {
+                solvePuzzle();
+            } else {
+                handleKey(event);
+            }
+        });
+
+        function resizeBoards() {
+            const rows = parseInt(document.getElementById('height').value);
+            const cols = parseInt(document.getElementById('width').value);
+            createBoard('edit-board', rows, cols);
+            createBoard('draft-board', rows, cols);
+            createBoard('solution1-board', rows, cols);
+            createBoard('solution2-board', rows, cols);
+        }
+
+        document.getElementById('clear-edit').addEventListener('click', () => {
+            recordAction('edit', 'edit-board');
+            resetBoard('edit-board');
+        });
+
+        document.getElementById('clear-draft').addEventListener('click', () => {
+            recordAction('draft', 'draft-board');
+            resetBoard('draft-board');
+        });
+        document.getElementById('export-url').addEventListener('click', exportURL);
+
+        document.getElementById('solve').addEventListener('click', solvePuzzle);
+
+        document.getElementById('resize').addEventListener('click', resizeBoards);
+        document.getElementById('copy-to-draft').addEventListener('click', () => {
+            recordAction('draft', 'draft-board');
+            copyBoard('edit-board', 'draft-board');
+        });
+
+        document.getElementById('copy-to-edit').addEventListener('click', () => {
+            recordAction('edit', 'edit-board');
+            copyBoard('draft-board', 'edit-board');
+        });
+
+        document.getElementById('copy-to-draft-solution1').addEventListener('click', () => {
+            recordAction('draft', 'draft-board');
+            copyBoard('solution1-board', 'draft-board');
+        });
+        document.getElementById('copy-to-draft-solution2').addEventListener('click', () => {
+            recordAction('draft', 'draft-board');
+            copyBoard('solution2-board', 'draft-board');
+        });
+
+
+
+
+        createBoard('edit-board', 5, 7);
+        createBoard('draft-board', 5, 7);
+        createBoard('solution1-board', 5, 7);
+        createBoard('solution2-board', 5, 7);
+
+        
+        async function exportURL() {
+            
+            const boardData = getBoardData('edit-board'); // 現在の盤面状態を取得
+            // try {
+            const response = await fetch('/api/export_url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ board: boardData })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to export url');
+            }
+            const url_data = await response.json();
+            const { url } = url_data;
+            navigator.clipboard.writeText(url) // URLをクリップボードにコピー
+        .then(() => {
+            updateMessageArea('URL copied to clipboard!', 'lightgreen', 'darkgreen');
+        })
+        .catch(() => {
+            updateMessageArea('Failed to copy URL.', 'lightcoral', 'darkred');
+        });
+
+        }
+
+        async function solvePuzzle() {
+
+            updateMessageArea("Now Solving...", bgColor = 'white', textColor = 'black')
+            resetBoard("solution1-board")
+            resetBoard("solution2-board")
+            blackCells = getBlackCells("edit-board")
+            const boardData = getBoardData('edit-board'); // 現在の盤面状態を取得
+            // try {
+            const response = await fetch('/api/solve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ board: boardData })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to solve puzzle');
+            }
+            const solution = await response.json();
+
+            const { is_hukusuukai, ans_board1, ans_board2 } = solution;
+
+            if (ans_board1.length == 0) {
+
+                // self.update_message("解なし(0)", "black","red")
+                updateMessageArea("解なし(0)", bgColor = 'red', textColor = 'black')
+            }
+            else {
+
+                displaySolution("solution1-board", ans_board1, blackCells)
+                if (is_hukusuukai) {
+
+                    //self.update_message("複数解(2+)", "black","lightyellow")
+                    //self.display_solution( "solution2",solution2)
+
+                    updateMessageArea("複数解(2+)", bgColor = 'lightyellow', textColor = 'black')
+                    displaySolution("solution2-board", ans_board2, blackCells)
+                    //self.show_diff()
+                    showDiff()
+                }
+                else {
+                    updateMessageArea("唯一解(1)", bgColor = 'lightgreen', textColor = 'black')
+                }
+            }
+
+
+        }
+        function getBlackCells(boardId) {
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
+            const blackCells = [];
+
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+
+                if (cell.textContent === '■') {
+                    blackCells.push([row, col]);
+                }
+            });
+
+            return blackCells;
+        }
+        function resetBoard(boardId) {
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
+
+            cells.forEach(cell => {
+                cell.textContent = ''; // セルを空白にする
+                cell.style.backgroundColor = ''; // 背景色をリセット
+                cell.style.color = 'black'; // テキスト色をリセット
+            });
+        }
+
+        function getBoardData(boardId) {
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
+            const rows = Math.max(...Array.from(cells).map(cell => parseInt(cell.dataset.row))) + 1;
+            const cols = Math.max(...Array.from(cells).map(cell => parseInt(cell.dataset.col))) + 1;
+
+            const data = Array.from({ length: rows }, () => Array(cols).fill(' '));
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                data[row][col] = cell.textContent || ' ';
+            });
+            console.log(data)
+            return data;
+        }
+        function displaySolution(boardId, solution, blackCells = []) {
+            // 1. 盤面をリセット（黒マスはそのまま維持）
+            console.log(solution)
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+
+                // 黒マスでない場合にリセット
+                if (!blackCells.some(([r, c]) => r === row && c === col)) {
+                    cell.textContent = '';
+                    cell.style.backgroundColor = 'white';
+                }
+            });
+
+            // 2. 矢印を描画
+            solution.forEach(({ startRow, startCol, direction, length, path, tip }) => {
+                // 経路部分に長さを表示
+                path.forEach(([r, c]) => {
+                    const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+                    if (cell) {
+                        cell.textContent = length.toString();
+                        cell.style.backgroundColor = 'white';
+                    }
+                });
+
+                // 矢尻部分に方向マーカーを表示
+                if (tip) {
+                    const [tipRow, tipCol] = tip;
+                    const cell = board.querySelector(`.cell[data-row='${tipRow}'][data-col='${tipCol}']`);
+                    if (cell) {
+                        const directionMap = { up: '↑', down: '↓', left: '←', right: '→' };
+                        cell.textContent = directionMap[direction];
+                        cell.style.backgroundColor = 'palegreen';
+                    }
+                }
+
+                // 始点をハイライト
+                const startCell = board.querySelector(`.cell[data-row='${startRow}'][data-col='${startCol}']`);
+                if (startCell) {
+                    startCell.style.backgroundColor = 'lightyellow';
+                }
+            });
+
+            // 3. 黒マスを再設定
+            blackCells.forEach(([r, c]) => {
+                const cell = board.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+                if (cell) {
+                    cell.textContent = '■';
+                    cell.style.backgroundColor = 'black';
+                    cell.style.color = 'white';
+                }
+            });
+        }
+
+
+        function showDiff() {
+            const board1 = document.getElementById('solution1-board');
+            const board2 = document.getElementById('solution2-board');
+            const cells = board1.querySelectorAll('.cell');
+            const rows = Math.max(...Array.from(cells).map(cell => parseInt(cell.dataset.row))) + 1;
+            const cols = Math.max(...Array.from(cells).map(cell => parseInt(cell.dataset.col))) + 1;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell1 = board1.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+                    const cell2 = board2.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+
+                    if (cell1 && cell2 && cell1.textContent !== cell2.textContent) {
+                        cell1.style.color = 'red'; // 異なるセルを赤色で強調
+                        cell2.style.color = 'red';
+                    }
+                }
+            }
+        }
+
+        function updateMessageArea(message, bgColor = 'white', textColor = 'black') {
+            const messageArea = document.getElementById('message-area');
+            messageArea.textContent = message;
+            messageArea.style.backgroundColor = bgColor;
+            messageArea.style.color = textColor;
+        }
+
+        function copyBoard(sourceId, targetId) {
+            const sourceBoard = document.getElementById(sourceId);
+            const targetBoard = document.getElementById(targetId);
+            const sourceCells = sourceBoard.querySelectorAll('.cell');
+            const targetCells = targetBoard.querySelectorAll('.cell');
+
+            if (sourceCells.length !== targetCells.length) {
+                console.error('Source and target boards must have the same size.');
+                return;
+            }
+
+            sourceCells.forEach((sourceCell, index) => {
+                const targetCell = targetCells[index];
+                targetCell.textContent = sourceCell.textContent; // 内容をコピー
+                targetCell.style.backgroundColor = sourceCell.style.backgroundColor; // 背景色をコピー
+                targetCell.style.color = sourceCell.style.color; // テキスト色をコピー
+            });
+        }
+
+
+    </script>
+</body>
+
+</html>
