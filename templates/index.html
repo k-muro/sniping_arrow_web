@@ -558,6 +558,10 @@
             const board = document.getElementById(boardId);
             const cells = board.querySelectorAll('.cell');
 
+            // 既存のSVGを削除
+            const oldSvg = board.querySelector('.arrow-layer');
+            if (oldSvg) oldSvg.remove();
+
             cells.forEach(cell => {
                 cell.textContent = ''; // セルを空白にする
                 cell.style.backgroundColor = ''; // 背景色をリセット
