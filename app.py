@@ -39,7 +39,7 @@ def index():
 def export_url():
     data = request.json
     board = data.get('board')
-    print(board)
+    #print(board)
     sab=get_board(board)
     sab.display_board()
     url=sab.get_url()
@@ -82,15 +82,15 @@ def get_board(board):
 def solve_puzzle():
     data = request.json
     board = data.get('board')
-    print(board)
+    #print(board)
     sab=get_board(board)
-    sab.display_board()
+    #sab.display_board()
     is_hukusuukai,ans_list1,ans_list2=sab.solve_board()
 
     ans_board1=[{"startRow":i[0],"startCol":i[1],"direction":i[2],"length":i[3],"path":list(sab.get_arrow_path(i)),"tip":list(sab.get_arrow_tip(i))} for i in ans_list1]
-    print(ans_board1)
+    #print(ans_board1)
     ans_board2=[{"startRow":i[0],"startCol":i[1],"direction":i[2],"length":i[3],"path":list(sab.get_arrow_path(i)),"tip":list(sab.get_arrow_tip(i))} for i in ans_list2]
-    print(jsonify({'is_hukusuukai':is_hukusuukai,'ans_board1': ans_board1, 'ans_board2': ans_board2}))
+    #print(jsonify({'is_hukusuukai':is_hukusuukai,'ans_board1': ans_board1, 'ans_board2': ans_board2}))
     return jsonify({'is_hukusuukai':is_hukusuukai,'ans_board1': ans_board1, 'ans_board2': ans_board2})
 
 
