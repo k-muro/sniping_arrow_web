@@ -534,7 +534,8 @@
             } catch (error) {
                 // エラーメッセージを画面に表示
                 console.error("Error solving puzzle:", error);
-                updateMessageArea(`タイムアウトエラー:(だいたいの場合問題サイズが大きすぎるのが原因なので、サイズを小さくしたりヒントを増やしたりしてください)`, 'red', 'white');
+                updateMessageArea(`エラーが発生しました:(だいたいの場合問題サイズが大きすぎるのが原因なので、サイズを小さくしたりヒントを増やしたりしてください) ${error.message}`, 'red', 'white');
+   
             }
         }
 
