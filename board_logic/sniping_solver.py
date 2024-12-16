@@ -360,19 +360,19 @@ class SnipingArrowBoard:
         ans_list1=[]
         ans_list2=[]
         constraints = solver.assertions()       
-        print(len(constraints))
+        #print(len(constraints))
         if solver.check()==sat:
             model = solver.model()
             for key,var in  variable_dict.items():
                 if model[var]:
                     ans_list1.append(id_dict[key])
                     
-            print(ans_list1)
+            #print(ans_list1)
             #solver1=copy.deepcopy(solver)
             solver.add(Or([var != model[var] for var in  variable_dict.values()]))
      
             constraints = solver.assertions()       
-            print(len(constraints))
+            #print(len(constraints))
             # 二つ目の解を探す
             if solver.check() == sat:
                 is_hukusuukai=True
@@ -380,6 +380,6 @@ class SnipingArrowBoard:
                 for key,var in  variable_dict.items():
                     if model[var]:
                         ans_list2.append(id_dict[key])
-                print(ans_list2)
+                #print(ans_list2)
         
         return is_hukusuukai,ans_list1,ans_list2
