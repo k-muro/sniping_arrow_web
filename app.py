@@ -34,6 +34,7 @@ def log_request_info():
     app.logger.info("Referrer: %s", request.referrer)
     app.logger.info("Headers: %s", request.headers)
 
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
