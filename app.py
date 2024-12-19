@@ -1,18 +1,20 @@
 from flask import Flask, render_template, request, jsonify
 from board_logic.board import SnipingArrowBoard  # ロジック部分
-
+import traceback
 app = Flask(__name__)
 from flask import jsonify
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    # 例外発生時にログを記録
-    app.logger.error(f"Error occurred: {str(e)}")
+    # スタックトレースを取得
+    tb = traceback.format_exc()
+    app.logger.error(f"Error occurred: {str(e)}\nTraceback:\n{tb}")
     
     # クライアントにエラーメッセージをJSONで返す
     return jsonify({
         "error": "Server encountered an error",
-        "details": str(e)
+        "details": str(e),
+        "traceback": tb
     }), 500
 
 @app.route("/", methods=["GET", "POST"])
@@ -86,7 +88,6 @@ def solve_puzzle():
     sab=get_board(board)
     #sab.display_board()
     is_hukusuukai,ans_list1,ans_list2=sab.solve_board()
-
     ans_board1=[{"startRow":i[0],"startCol":i[1],"direction":i[2],"length":i[3],"path":list(sab.get_arrow_path(i)),"tip":list(sab.get_arrow_tip(i))} for i in ans_list1]
     #print(ans_board1)
     ans_board2=[{"startRow":i[0],"startCol":i[1],"direction":i[2],"length":i[3],"path":list(sab.get_arrow_path(i)),"tip":list(sab.get_arrow_tip(i))} for i in ans_list2]
