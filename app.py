@@ -4,6 +4,7 @@ import traceback
 app = Flask(__name__)
 from flask import jsonify
 
+from werkzeug.exceptions import NotFound
 @app.errorhandler(Exception)
 def handle_exception(e):
     # スタックトレースを取得
@@ -16,6 +17,22 @@ def handle_exception(e):
         "details": str(e),
         "traceback": tb
     }), 500
+
+@app.errorhandler(NotFound)
+def handle_404(e):
+    tb = traceback.format_exc()
+    app.logger.error(f"404 Not Found: {str(e)}\nTraceback:\n{tb}")
+    return jsonify({
+        "error": "Not Found",
+        "details": str(e),
+        "traceback": tb,
+        "requested_url": request.path
+    }), 404
+@app.before_request
+def log_request_info():
+    app.logger.info("Handling request: %s %s", request.method, request.path)
+    app.logger.info("Referrer: %s", request.referrer)
+    app.logger.info("Headers: %s", request.headers)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
