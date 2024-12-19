@@ -61,7 +61,7 @@ def export_url():
     board = data.get('board')
     #print(board)
     sab=get_board(board)
-    sab.display_board()
+    #sab.display_board()
     url=sab.get_url()
     return jsonify({'url':url})
 
